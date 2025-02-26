@@ -3,208 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rohan Das - Personal Webpage</title>
+    <title>Biography</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <style>
         body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
+            background-image: url("https://slr.kys.gay/saves/art.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100vh;
         }
-        header {
-            background-color: #1f1f1f;
-            padding: 1em;
-            text-align: center;
-            width: 100%;
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        #overlay {
             position: fixed;
             top: 0;
-        }
-        nav {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: #2e2e2e;
-            padding: 1em;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        nav a {
-            color: #ffffff;
-            display: block;
-            margin: 1em 0;
-            text-decoration: none;
-            transition: background-color 0.3s, padding-left 0.3s;
-            padding: 0.5em;
-            border-radius: 4px;
-        }
-        nav a:hover {
-            background-color: #ffcc00;
-            color: #000000;
-            padding-left: 1em;
-        }
-        main {
-            margin-top: 5em;
-            padding-right: 6em;
+            left: 0;
             width: 100%;
-        }
-        section {
-            padding: 2em;
-        }
-        .content {
-            max-width: 800px;
-            margin: auto;
-        }
-        h2 {
-            color: #ffcc00;
-        }
-        footer {
-            background-color: #1f1f1f;
-            padding: 1em;
-            text-align: center;
-            margin-top: 2em;
-        }
-        a {
-            color: #ffcc00;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .blog-article {
-            background-color: #2a2a2a;
-            padding: 1em;
-            border-radius: 8px;
-            margin-bottom: 2em;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            transition: transform 0.3s;
-        }
-        .blog-article:hover {
-            transform: scale(1.05);
-        }
-        .youtube-video {
-            margin: 2em 0;
-            text-align: center;
-        }
-        #countdown-timer {
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2em;
-            gap: 10px;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            backdrop-filter: blur(10px);
         }
-
-        .countdown-item {
-            background-color: #2e2e2e;
-            padding: 10px 20px;
-            border-radius: 8px;
+        #overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
-        <link rel="stylesheet" href="styles.css">
+        #dynamic-taphere {
+            color: white;
+            font-size: 3rem;
+            min-height: 3.5rem;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        #tap-here {
+            color: #ffffff;
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .profile-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .profile-container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .external-buttons {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+        .external-buttons a {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .external-buttons a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
-    <audio autoplay loop>
-        <source src="https://github.com/MillionDollarGuy/MillionDollarGuy.github.io/blob/main/Tauba%20Tauba%20Bad%20Newz%20128%20Kbps.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-    
-    <header>
-        <h1>Rohan Das</h1>
-    </header>
+    <div id="overlay">
+        <div class="text-center">
+            <h1 id="dynamic-taphere" class="mb-4"></h1>
+            <p id="tap-here" class="animate-pulse">Tap Here</p>
+        </div>
+    </div>
 
-    <nav>
-        <a href="#about">About Me</a>
-        <a href="#blog">Blog</a>
-        <a href="#projects">Projects</a>
-        <a href="#contact">Contact</a>
-    </nav>
+    <canvas id="background-canvas"></canvas>
 
-    <main>
-        <section id="about">
-            <div class="content">
-                <h2>About Me</h2>
-                <p>Hello! I am Rohan Das, a 15-year old high-school student, with a strong passion for sports and a love for music and learning. At the age of 15, I am fortunate to have discovered my favorite sport, Rollball, which is rapidly gaining popularity worldwide, reaching over 80 countries and counting.
-As a sports enthusiast, I find immense joy and fulfillment in participating in Rollball. The fast-paced nature of the sport not only keeps me physically active but also sharpens my strategic thinking and decision-making skills. Rollball has taught me the importance of teamwork, discipline, and perseverance, traits that I carry with me in all aspects of my life.
-Apart from my athletic pursuits, I am a firm believer in the power of music and education. I find solace in the melodies that soothe my soul, and I am constantly seeking opportunities to expand my knowledge and broaden my horizons. I approach every day with a hunger for learning, as I believe that knowledge is not only a tool for personal growth but also a means to make a positive impact on the world around me.
-While I may struggle with trust issues, I am determined to create an environment where others can find happiness and support. It is important to me to contribute to the well-being of those around me, even if I may not always feel completely satisfied myself. I am driven by the desire to make a difference, big or small, in the lives of others.
-In conclusion, I am a young individual rooted in India, with a deep passion for Rollball, music, and continual learning. Through my dedication and commitment, I strive to make a positive impact on the world and inspire others to pursue their passions with unwavering determination.</p>
-                <hr>
-                <p>Currently part of U-17 Nationals Rollball team , SFL Team and Tech Team for Radio Orange</p>
-            </div>
-        </section>
+    <div class="container mx-auto px-4 py-16 relative z-10 flex items-center justify-center h-screen">
+        <div class="profile-container p-8 text-center relative">
+            <img src="https://encrypted-bytes.com/download/8dda6281a947b685b22366075244c039f952ae3eb18d49a1008bef7f05e31449/78e55b015461b42a81f162695490fc97/a6bba0bc9ad9958759e1432c96e81ddea2f8f9dacc9253af6bbe032ed92c4295c4a358ea0ffc421c390b83bef1697ef00092c17bbe63ede8c249a37714e199006061d95a91f50a2dd25f9ede934a5eb2/b917aff41fe04147f208e70e13096d0f" 
+                 alt="Rohan Das" 
+                 class="w-40 h-40 mx-auto rounded-full border-4 border-red-500 object-cover mb-6">
+            
+            <h2 class="text-3xl font-bold text-red-500 mb-2">Rohan Das</h2>
+            <p class="text-gray-300 italic mb-4">"i am spooderman"</p>
+        </div>
+    </div>
 
-        <section id="blog">
-            <div class="content">
-                <h2>Blog</h2>
-                <div class="blog-article">
-                    <h3>My Journey with Rollball</h3>
-                    <p>Discover how I found my passion for Rollball and how it has shaped my approach to life and teamwork...</p>
-                </div>
-                <div class="blog-article">
-                    <h3>The Power of Music</h3>
-                    <p>Explore how music has been a source of comfort and inspiration for me...</p>
-                </div>
-            </div>
-        </section>
+    <div class="external-buttons">
+        <a href="https://discord.gg/BscuKhD5GV" target="_blank">
+            <i class="fab fa-discord"></i>
+            </a>
+        <a href="https://slr.kys.gay/" target="_blank">
+           <img src="https://cdn.discordapp.com/icons/1286453797144494102/087214d3b58bec9a1fdb243f40a3e009.png?size=2048" alt="Icono personalizado" style="width: 32px; height: 32px;">
+        </a>
+        <a href="https://www.paypal.me/PedroPabloMarinV" target="_blank">
+            <i class="fab fa-paypal"></i>
+        </a>
+    </div>
 
-        <section id="projects">
-            <div class="content">
-                <h2>Projects</h2>
-                <p>Currently, I am working on creating a monthly magazine for my school, where I aim to showcase student achievements and creativity.</p>
-            </div>
-        </section>
-
-        <section id="countdown">
-            <div class="content">
-                <h2>Birthday Countdown</h2>
-                <div id="countdown-timer">
-                    <div class="countdown-item" id="days">0d</div>
-                    <div class="countdown-item" id="hours">0h</div>
-                    <div class="countdown-item" id="minutes">0m</div>
-                    <div class="countdown-item" id="seconds">0s</div>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact">
-            <div class="content">
-                <h2>Contact</h2>
-                <p>If you'd like to get in touch, please contact me via email at <a href="mailto:rohan@example.com">rohan@example.com</a>.</p>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Rohan Das. All rights reserved.</p>
-    </footer>
+    <audio id="background-music" src="https://encrypted-bytes.com/download/7f8a4a7a14c62834c68dfa7df54d21665c6e2d77d96465aa2789d2a285f98924/7aa22f4e1797c53e3426c1623ddf89c4/02fc49e803d30dd3649852d86ddb3d90954f5e6e8a87491726f5065cf95ce36f1c96325367a2bc775cd914be88fc5c0c06d763f5482d43ab086950abe9d5fd37afa0f3ba4dbff1cec0fa9f51b0a11049/3212c04deae956665b7fbd833d4dc96d" preload="auto"></audio>
 
     <script>
-        function calculateCountdown() {
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            let birthday = new Date(currentYear, 11, 1); // December 1 of the current year
+        const taphereTitles = [
+            'Just for her',
+            'Sólo para ella',
+            '只为她',
+            'Juste pour elle',
+            'Nur für sie',
+            'Solo per lei',
+            'Sicut pro ea',
+            'तस्याः कृते एव',
+            'শুধু তার জন্য'
+        ];
 
-            if (now > birthday) {
-                birthday = new Date(currentYear + 1, 11, 1); // If today is past Dec 1, use next year
+        const dynamicTaphereEl = document.getElementById('dynamic-taphere');
+        let currentTaphereIndex = 0;
+        let isTaphereDeleting = false;
+        let taphereTypingSpeed = 100;
+        let taphereDeleteSpeed = 100;
+        let currentTaphereText = '';
+        let pauseTaphere = false;
+
+        function typingEffectTaphere() {
+            if (pauseTaphere) return;
+
+            const fullText = taphereTitles[currentTaphereIndex];
+
+            if (isTaphereDeleting) {
+                currentTaphereText = fullText.substring(0, currentTaphereText.length - 1);
+            } else {
+                currentTaphereText = fullText.substring(0, currentTaphereText.length + 1);
             }
 
-            const difference = birthday - now;
-            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            dynamicTaphereEl.textContent = currentTaphereText;
 
-            document.getElementById('days').innerText = `${days}d`;
-            document.getElementById('hours').innerText = `${hours}h`;
-            document.getElementById('minutes').innerText = `${minutes}m`;
-            document.getElementById('seconds').innerText = `${seconds}s`;
+            let speed = taphereTypingSpeed;
+
+            if (isTaphereDeleting) {
+                speed = taphereDeleteSpeed;
+            }
+
+            if (!isTaphereDeleting && currentTaphereText === fullText) {
+                pauseTaphere = true;
+                speed = 2000;
+                setTimeout(() => {
+                    isTaphereDeleting = true;
+                    pauseTaphere = false;
+                }, speed);
+            } else if (isTaphereDeleting && currentTaphereText === '') {
+                isTaphereDeleting = false;
+                currentTaphereIndex = (currentTaphereIndex + 1) % taphereTitles.length;
+                speed = 250;
+            }
+
+            setTimeout(typingEffectTaphere, speed);
         }
 
-        setInterval(calculateCountdown, 1000); // Update countdown every second
+        function startBackgroundMusic() {
+            const music = document.getElementById('background-music');
+            music.play();
+        }
+        document.getElementById('overlay').addEventListener('click', () => {
+            document.getElementById('overlay').classList.add('hidden');
+            startBackgroundMusic();
+        });
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: document.getElementById('background-canvas'), 
+            alpha: true,
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearAlpha(0);
+
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 2000;
+        const posArray = new Float32Array(starCount * 3);
+        const velocityArray = new Float32Array(starCount * 3);
+
+        for (let i = 0; i < starCount * 3; i += 3) {
+            posArray[i] = (Math.random() - 0.5) * 2000;
+            posArray[i + 1] = (Math.random() + 0.5) * 2000;
+            posArray[i + 2] = (Math.random() - 0.5) * 2000;
+            velocityArray[i] = (Math.random() - 0.5) * 2;
+            velocityArray[i + 1] = Math.random() * 5 + 2;
+            velocityArray[i + 2] = (Math.random() - 0.5) * 2;
+        }
+
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.5,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.7
+        });
+
+        const starField = new THREE.Points(starGeometry, starMaterial);
+        scene.add(starField);
+
+        camera.position.z = 1000;
+
+        function animateStars() {
+            requestAnimationFrame(animateStars);
+            const positions = starField.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] += velocityArray[i];
+                positions[i + 1] -= velocityArray[i + 1];
+                positions[i + 2] += velocityArray[i + 2];
+                if (positions[i + 1] < -1000) {
+                    positions[i + 1] = 1000;
+                    positions[i] = (Math.random() - 0.5) * 2000;
+                    positions[i + 2] = (Math.random() - 0.5) * 2000;
+                }
+            }
+            starField.geometry.attributes.position.needsUpdate = true;
+            
+            renderer.render(scene, camera);
+        }
+        setTimeout(typingEffectTaphere, 500);
+        animateStars();
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            
+            renderer.setSize(width, height);
+        });
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9181c52d1b55f930","version":"2025.1.0","r":1,"token":"4b7a6168e9c4476fb64ce8e73a4e671c","serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
 </body>
 </html>
