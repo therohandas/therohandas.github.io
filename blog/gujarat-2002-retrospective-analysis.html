@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+    <title>Gujarat 2002: A Retrospective Analysis of the Riots and Aftermath &mdash; Rohan Das</title>
+    <meta name="description"
+        content="A retrospective reflection on the Gujarat riots of 2002, their human cost, and the importance of remembrance.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            background-image: url("../bg_image.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #0a0a14;
+            margin: 0;
+            min-height: 100vh;
+            color: #cbd5e1;
+            overflow-x: hidden;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        :root {
+            --blue: #3b82f6;
+            --blue-light: #60a5fa;
+        }
+
+        .page-wrap {
+            position: relative;
+            z-index: 10;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 100px 28px 100px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--blue-light);
+            font-size: .85rem;
+            font-weight: 500;
+            text-decoration: none;
+            margin-bottom: 2.5rem;
+            transition: gap .3s, opacity .3s;
+            opacity: .7;
+        }
+
+        .back-link:hover {
+            gap: 12px;
+            opacity: 1;
+        }
+
+        .post-meta {
+            font-size: .75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: rgba(255, 255, 255, .35);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-meta .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--blue-light);
+        }
+
+        .post-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: -.02em;
+            color: #f1f5f9;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+        }
+
+        .post-body {
+            font-size: 1rem;
+            line-height: 2;
+            color: rgba(255, 255, 255, .6);
+            font-weight: 300;
+            background: linear-gradient(135deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .02) 40%, rgba(120, 180, 255, .04) 70%, rgba(255, 255, 255, .05) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-top: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 20px;
+            padding: 2.2rem 2.5rem;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .25), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -1px 0 rgba(255, 255, 255, .03);
+        }
+
+        .post-body p {
+            margin-bottom: 1.4rem;
+        }
+
+        .post-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .post-body em {
+            color: rgba(255, 255, 255, .82);
+        }
+
+        .bubble-menu {
+            position: fixed;
+            top: 1.5em;
+            right: 2em;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        .bubble-menu .menu-btn {
+            --s: 50px;
+            width: var(--s);
+            height: var(--s);
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            pointer-events: auto;
+            transition: background .3s, transform .3s;
+        }
+
+        .bubble-menu .menu-btn:hover {
+            background: rgba(255, 255, 255, .08);
+            transform: scale(1.08);
+        }
+
+        .bubble-menu .menu-line {
+            width: 22px;
+            height: 1.5px;
+            background: rgba(255, 255, 255, .8);
+            border-radius: 2px;
+            display: block;
+            margin: 0 auto;
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1), opacity .35s;
+            transform-origin: center;
+        }
+
+        .bubble-menu .menu-line+.menu-line {
+            margin-top: 5px;
+        }
+
+        .bubble-menu .menu-btn.open .menu-line:first-child {
+            transform: translateY(3.25px) rotate(45deg);
+        }
+
+        .bubble-menu .menu-btn.open .menu-line:last-child {
+            transform: translateY(-3.25px) rotate(-45deg);
+        }
+
+        @media(min-width:768px) {
+            .bubble-menu .menu-btn {
+                --s: 56px;
+            }
+        }
+
+        .bubble-menu-items {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 98;
+            background: rgba(0, 0, 0, .6);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+        }
+
+        .bubble-menu-items .pill-list {
+            list-style: none;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            row-gap: 6px;
+            width: 100%;
+            max-width: 1400px;
+            pointer-events: auto;
+            justify-content: stretch;
+        }
+
+        .bubble-menu-items .pill-list .pill-col {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            flex: 0 0 calc(100%/3);
+        }
+
+        .bubble-menu-items .pill-list .pill-col:nth-child(4):nth-last-child(2) {
+            margin-left: calc(100%/6);
+        }
+
+        .bubble-menu-items .pill-list .pill-col:nth-child(4):last-child {
+            margin-left: calc(100%/3);
+        }
+
+        .bubble-menu-items .pill-link {
+            --pill-bg: rgba(255, 255, 255, .05);
+            --pill-color: rgba(255, 255, 255, .85);
+            --item-rot: 0deg;
+            --pill-min-h: 140px;
+            --hover-bg: rgba(255, 255, 255, .1);
+            --hover-color: #fff;
+            --glow-color: rgba(255, 255, 255, .06);
+            width: 100%;
+            min-height: var(--pill-min-h);
+            padding: clamp(1.5rem, 3vw, 6rem) 0;
+            font-size: clamp(1.4rem, 3.5vw, 3.5rem);
+            font-weight: 300;
+            letter-spacing: .08em;
+            line-height: 0;
+            border-radius: 999px;
+            background: var(--pill-bg);
+            color: var(--pill-color);
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, .08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, .15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .4s, color .4s, border-color .4s, box-shadow .4s;
+            will-change: transform;
+            white-space: nowrap;
+            overflow: hidden;
+            height: 10px;
+        }
+
+        @media(min-width:900px) {
+            .bubble-menu-items .pill-link {
+                transform: rotate(var(--item-rot));
+            }
+
+            .bubble-menu-items .pill-link:hover {
+                transform: rotate(var(--item-rot)) scale(1.04);
+                background: var(--hover-bg);
+                color: var(--hover-color);
+                border-color: rgba(255, 255, 255, .15);
+                box-shadow: 0 8px 40px var(--glow-color);
+            }
+
+            .bubble-menu-items .pill-link:active {
+                transform: rotate(var(--item-rot)) scale(.96);
+            }
+        }
+
+        .bubble-menu-items .pill-link .pill-label {
+            display: inline-block;
+            height: 1.2em;
+            line-height: 1.2;
+            text-transform: lowercase;
+        }
+
+        @media(max-width:899px) {
+            .bubble-menu-items {
+                padding-top: 120px;
+                align-items: flex-start;
+            }
+
+            .bubble-menu-items .pill-list {
+                row-gap: 12px;
+            }
+
+            .bubble-menu-items .pill-list .pill-col {
+                flex: 0 0 100%;
+                margin-left: 0 !important;
+            }
+
+            .bubble-menu-items .pill-link {
+                font-size: clamp(1.2rem, 3vw, 3rem);
+                padding: clamp(1rem, 2vw, 2rem) 0;
+                min-height: 72px;
+            }
+
+            .bubble-menu-items .pill-link:hover {
+                transform: scale(1.03);
+                background: var(--hover-bg);
+                color: var(--hover-color);
+            }
+
+            .bubble-menu-items .pill-link:active {
+                transform: scale(.96);
+            }
+        }
+
+        .f {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .f.v {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="bubble-menu"><button type="button" class="menu-btn" id="menu-toggle" aria-label="Toggle menu"><span
+                class="menu-line"></span><span class="menu-line"></span></button></nav>
+    <div class="bubble-menu-items" id="bubble-overlay" aria-hidden="true">
+        <ul class="pill-list" role="menu">
+            <li role="none" class="pill-col"><a role="menuitem" href="../index.html" class="pill-link bubble-pill"
+                    style="--item-rot:-6deg;--glow-color:rgba(147,197,253,.15);--hover-bg:rgba(147,197,253,.12);--hover-color:#93c5fd"><span
+                        class="pill-label">home</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="../about.html" class="pill-link bubble-pill"
+                    style="--item-rot:5deg;--glow-color:rgba(110,231,183,.15);--hover-bg:rgba(110,231,183,.12);--hover-color:#6ee7b7"><span
+                        class="pill-label">about</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="../projects.html" class="pill-link bubble-pill"
+                    style="--item-rot:6deg;--glow-color:rgba(252,211,77,.15);--hover-bg:rgba(252,211,77,.12);--hover-color:#fcd34d"><span
+                        class="pill-label">projects</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="../blog.html" class="pill-link bubble-pill"
+                    style="--item-rot:5deg;--glow-color:rgba(252,165,165,.15);--hover-bg:rgba(252,165,165,.12);--hover-color:#fca5a5"><span
+                        class="pill-label">blog</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="../gallery.html" class="pill-link bubble-pill"
+                    style="--item-rot:-5deg;--glow-color:rgba(196,181,253,.15);--hover-bg:rgba(196,181,253,.12);--hover-color:#c4b5fd"><span
+                        class="pill-label">gallery</span></a></li>
+        </ul>
+    </div>
+    <canvas id="background-canvas"></canvas>
+
+    <div class="page-wrap">
+        <a href="../blog.html" class="back-link f"><i class="fas fa-arrow-left"></i> Back to all posts</a>
+        <div class="post-meta f"><span class="dot"></span> August 2025 <span class="dot"></span> 4 min read</div>
+        <h1 class="post-title f">Gujarat 2002: A Retrospective Analysis of the Riots and Aftermath</h1>
+        <div class="post-body f">
+            <p>In the words of activist and writer Arundhati Roy, <em>&ldquo;The idea of justice has been reduced to revenge.&rdquo;</em> And perhaps, no event in recent Indian history reminds us of that more sharply than the Gujarat riots of 2002.</p>
+            <p>What began on February 27 with the burning of the Sabarmati Express in Godhra, where 59 Hindu pilgrims lost their lives, soon erupted into widespread violence across the state. What followed wasn't just a riot. It was a breakdown of humanity. Over 1,000 people&mdash;mostly Muslims&mdash;were killed, thousands injured, and entire neighborhoods were turned to ash.</p>
+            <p>To make matters worse, assistance was slow in coming and sometimes non-existent. Numerous survivors claimed that the police took too long to arrive or did nothing upon arrival. Some reports alleged that state authorities remained quiet, or even worse, complicit.</p>
+            <p>Various investigations were carried out by journalists, human rights bodies, and later on by Special Investigation Team (SIT) appointed by Supreme Court to find out the truth behind it. Some people were found guilty &amp; punished for their crimes including some influential personalities but many believe that real justice has never been done.</p>
+            <p>The riots also flipped political dynamics. Then, Gujarat Chief Minister Narendra Modi faced intense criticism, both at home and abroad. Supporters called it a smear campaign; critics called it accountability. Either way, the riots became a defining moment in his career and India's political conversation.</p>
+            <p>Nonetheless beyond courtrooms &amp; TV screens, what really matters is the price paid by humans. Families were uprooted; children grew up in relief camps, while even today's generation still carries the trauma. Nevertheless, there were rays of hope. There were accounts of neighbors defending each other, kind strangers providing refuge, &amp; individuals promoting love instead of hatred.</p>
+            <p>So why look back? Because remembering isn't about pointing fingers. It's about learning. About making sure that religious identity never becomes a reason for violence again.</p>
+            <p>The Gujarat riots of 2002 were a tragedy, but they don't have to define us. If anything, they remind us that communal harmony is fragile, and it's our responsibility to protect it. Not just with words, but with action.</p>
+        </div>
+    </div>
+
+    <script>const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, .1, 1000), renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('background-canvas'), alpha: true }); renderer.setSize(innerWidth, innerHeight); renderer.setClearAlpha(0); const N = 1500, pos = new Float32Array(N * 3), vel = new Float32Array(N * 3); for (let i = 0; i < N * 3; i += 3) { pos[i] = (Math.random() - .5) * 2000; pos[i + 1] = (Math.random() + .5) * 2000; pos[i + 2] = (Math.random() - .5) * 2000; vel[i] = (Math.random() - .5) * 1.5; vel[i + 1] = Math.random() * 3 + 1; vel[i + 2] = (Math.random() - .5) * 1.5; } const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); const stars = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: .4, blending: THREE.AdditiveBlending, transparent: true, opacity: .55 })); scene.add(stars); camera.position.z = 1000; (function a() { requestAnimationFrame(a); const p = stars.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 3) { p[i] += vel[i]; p[i + 1] -= vel[i + 1]; p[i + 2] += vel[i + 2]; if (p[i + 1] < -1000) { p[i + 1] = 1000; p[i] = (Math.random() - .5) * 2000; p[i + 2] = (Math.random() - .5) * 2000; } } stars.geometry.attributes.position.needsUpdate = true; renderer.render(scene, camera); })(); addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); }); const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('v'); }), { threshold: .12 }); document.querySelectorAll('.f').forEach(el => obs.observe(el)); (function () { const mt = document.getElementById('menu-toggle'), bo = document.getElementById('bubble-overlay'), ps = Array.from(document.querySelectorAll('.bubble-pill')), ls = Array.from(document.querySelectorAll('.bubble-pill .pill-label')), mi = [{ r: -6 }, { r: 5 }, { r: 6 }, { r: 5 }, { r: -5 }]; let o = false; function open() { o = true; mt.classList.add('open'); gsap.set(bo, { display: 'flex', opacity: 0 }); gsap.to(bo, { opacity: 1, duration: .4, ease: 'power2.out' }); gsap.killTweensOf([...ps, ...ls]); gsap.set(ps, { scale: 0, transformOrigin: '50% 50%' }); gsap.set(ls, { y: 20, autoAlpha: 0 }); ps.forEach((p, i) => { const d = i * .12 + (Math.random() * .1 - .05), tl = gsap.timeline({ delay: d }); tl.to(p, { scale: 1, duration: .5, ease: 'back.out(1.5)' }); if (ls[i]) tl.to(ls[i], { y: 0, autoAlpha: 1, duration: .5, ease: 'power3.out' }, '-.45'); }); ar(); } function close() { if (!o) return; o = false; mt.classList.remove('open'); gsap.killTweensOf([...ps, ...ls, bo]); gsap.to(ls, { y: 20, autoAlpha: 0, duration: .2, ease: 'power3.in' }); gsap.to(ps, { scale: 0, duration: .2, ease: 'power3.in' }); gsap.to(bo, { opacity: 0, duration: .3, delay: .1, ease: 'power2.in', onComplete() { gsap.set(bo, { display: 'none' }); } }); } mt.addEventListener('click', () => o ? close() : open()); ps.forEach(p => p.addEventListener('click', close)); document.addEventListener('mousedown', e => { if (!o) return; if (!bo.contains(e.target) && !e.target.closest('.bubble-menu')) close(); }); function ar() { if (!o) return; const d = innerWidth >= 900; ps.forEach((p, i) => gsap.set(p, { rotation: d ? mi[i].r : 0 })); } addEventListener('resize', ar); })();</script>
+    <script src="../music.js"></script>
+    <script src="../router.js"></script>
+</body>
+
+</html>

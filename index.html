@@ -1,0 +1,826 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <title>rohan :)</title>
+    <meta name="description" content="Rohan Das &mdash; Storyteller, Athlete, Tech Explorer">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Noto+Serif:ital,wght@0,400;1,400&family=Noto+Serif+SC:wght@400&family=Noto+Serif+Devanagari:wght@400&family=Noto+Serif+Bengali:wght@400&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            background-image: url("bg_image.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #0a0a14;
+            margin: 0;
+            min-height: 100vh;
+            color: #cbd5e1;
+            overflow-x: hidden;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        :root {
+            --blue: #3b82f6;
+            --blue-light: #60a5fa;
+            --orange: #f97316;
+            --orange-light: #fb923c;
+        }
+
+        /* -- Splash Overlay -- */
+        #splash {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        #splash.gone {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #splash-text {
+            font-family: 'Noto Serif', 'Georgia', serif;
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: 400;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.85);
+            min-height: 1.3em;
+            letter-spacing: 0.01em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        #splash-tap {
+            margin-top: 2rem;
+            font-size: 0.82rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            animation: pulse 2.5s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+
+        /* -- Hero -- */
+        .hero {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 28px;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 1;
+        }
+
+        body.splash-active .hero-inner {
+            opacity: 0;
+        }
+
+        .hero-inner.show {
+            opacity: 1;
+        }
+
+        /* Avatar */
+        .avatar-wrap {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-ring {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, var(--blue), var(--orange));
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.15), 0 0 80px rgba(249, 115, 22, 0.08);
+        }
+
+        .avatar-ring img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 3px solid #0c1222;
+        }
+
+        /* Name + tag */
+        .hero-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #f1f5f9;
+            margin-bottom: 0.4rem;
+            line-height: 1.15;
+        }
+
+        .hero-tag {
+            font-size: 1rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+        }
+
+        /* Social row */
+        .social-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2.5rem;
+        }
+
+        .social-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.2s;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .social-btn:hover .fa-instagram {
+            color: #e879f9;
+        }
+
+        .social-btn:hover .fa-github {
+            color: #e2e8f0;
+        }
+
+        .social-btn:hover .fa-linkedin {
+            color: #60a5fa;
+        }
+
+        .social-btn:hover .fa-whatsapp {
+            color: #4ade80;
+        }
+
+        .social-btn:hover .site-icon {
+            filter: brightness(2);
+        }
+
+        .site-icon {
+            width: 18px;
+            height: 18px;
+            opacity: 0.5;
+            transition: opacity 0.3s, filter 0.3s;
+        }
+
+        .social-btn:hover .site-icon {
+            opacity: 1;
+        }
+
+        /* CTA row */
+        .cta-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.01em;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+        }
+
+        .cta:active {
+            transform: translateY(0);
+        }
+
+        .cta-primary {
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
+        }
+
+        .cta-primary:hover {
+            box-shadow: 0 6px 28px rgba(59, 130, 246, 0.35);
+        }
+
+        .cta-outline {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cta-outline:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .hero-latest {
+            margin-top: 1.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.52);
+            text-decoration: none;
+            transition: color 0.25s ease, gap 0.25s ease;
+        }
+
+        .hero-latest:hover {
+            color: #93c5fd;
+            gap: 14px;
+        }
+
+        /* -- BubbleMenu -- */
+        .bubble-menu {
+            position: fixed;
+            top: 1.5em;
+            right: 2em;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        .bubble-menu .menu-btn {
+            --s: 50px;
+            width: var(--s);
+            height: var(--s);
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            pointer-events: auto;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .bubble-menu .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.08);
+        }
+
+        .bubble-menu .menu-line {
+            width: 22px;
+            height: 1.5px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.35s cubic-bezier(.4, 0, .2, 1), opacity 0.35s;
+            transform-origin: center;
+        }
+
+        .bubble-menu .menu-line+.menu-line {
+            margin-top: 5px;
+        }
+
+        .bubble-menu .menu-btn.open .menu-line:first-child {
+            transform: translateY(3.25px) rotate(45deg);
+        }
+
+        .bubble-menu .menu-btn.open .menu-line:last-child {
+            transform: translateY(-3.25px) rotate(-45deg);
+        }
+
+        @media (min-width: 768px) {
+            .bubble-menu .menu-btn {
+                --s: 56px;
+            }
+        }
+
+        .bubble-menu-items {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 98;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+        }
+
+        .bubble-menu-items .pill-list {
+            list-style: none;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            flex-wrap: wrap;
+            row-gap: 6px;
+            width: 100%;
+            max-width: 1400px;
+            pointer-events: auto;
+            justify-content: stretch;
+        }
+
+        .bubble-menu-items .pill-list .pill-col {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            flex: 0 0 calc(100%/3);
+        }
+
+        .bubble-menu-items .pill-list .pill-col:nth-child(4):nth-last-child(2) {
+            margin-left: calc(100%/6);
+        }
+
+        .bubble-menu-items .pill-list .pill-col:nth-child(4):last-child {
+            margin-left: calc(100%/3);
+        }
+
+        .bubble-menu-items .pill-link {
+            --pill-bg: rgba(255, 255, 255, 0.05);
+            --pill-color: rgba(255, 255, 255, 0.85);
+            --item-rot: 0deg;
+            --pill-min-h: 140px;
+            --hover-bg: rgba(255, 255, 255, 0.1);
+            --hover-color: #fff;
+            --glow-color: rgba(255, 255, 255, 0.06);
+            width: 100%;
+            min-height: var(--pill-min-h);
+            padding: clamp(1.5rem, 3vw, 6rem) 0;
+            font-size: clamp(1.4rem, 3.5vw, 3.5rem);
+            font-weight: 300;
+            letter-spacing: .08em;
+            line-height: 0;
+            border-radius: 999px;
+            background: var(--pill-bg);
+            color: var(--pill-color);
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, .08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, .15);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .4s, color .4s, border-color .4s, box-shadow .4s;
+            will-change: transform;
+            white-space: nowrap;
+            overflow: hidden;
+            height: 10px;
+        }
+
+        @media (min-width: 900px) {
+            .bubble-menu-items .pill-link {
+                transform: rotate(var(--item-rot));
+            }
+
+            .bubble-menu-items .pill-link:hover {
+                transform: rotate(var(--item-rot)) scale(1.04);
+                background: var(--hover-bg);
+                color: var(--hover-color);
+                border-color: rgba(255, 255, 255, .15);
+                box-shadow: 0 8px 40px var(--glow-color);
+            }
+
+            .bubble-menu-items .pill-link:active {
+                transform: rotate(var(--item-rot)) scale(.96);
+            }
+        }
+
+        .bubble-menu-items .pill-link .pill-label {
+            display: inline-block;
+            height: 1.2em;
+            line-height: 1.2;
+            text-transform: lowercase;
+        }
+
+        @media (max-width: 899px) {
+            .bubble-menu-items {
+                padding-top: 120px;
+                align-items: flex-start;
+            }
+
+            .bubble-menu-items .pill-list {
+                row-gap: 12px;
+            }
+
+            .bubble-menu-items .pill-list .pill-col {
+                flex: 0 0 100%;
+                margin-left: 0 !important;
+            }
+
+            .bubble-menu-items .pill-link {
+                font-size: clamp(1.2rem, 3vw, 3rem);
+                padding: clamp(1rem, 2vw, 2rem) 0;
+                min-height: 72px;
+                background: var(--hover-bg, rgba(255, 255, 255, .05));
+                border-color: rgba(255, 255, 255, .06);
+            }
+
+            /* Staggered offsets for organic feel */
+            .bubble-menu-items .pill-list .pill-col:nth-child(1) {
+                padding-left: 8px;
+                padding-right: 28px;
+            }
+
+            .bubble-menu-items .pill-list .pill-col:nth-child(2) {
+                padding-left: 24px;
+                padding-right: 12px;
+            }
+
+            .bubble-menu-items .pill-list .pill-col:nth-child(3) {
+                padding-left: 4px;
+                padding-right: 20px;
+            }
+
+            .bubble-menu-items .pill-list .pill-col:nth-child(4) {
+                padding-left: 20px;
+                padding-right: 4px;
+            }
+
+            .bubble-menu-items .pill-list .pill-col:nth-child(5) {
+                padding-left: 12px;
+                padding-right: 16px;
+            }
+
+            .bubble-menu-items .pill-link:hover {
+                transform: scale(1.03);
+                background: var(--hover-bg);
+                color: var(--hover-color);
+            }
+
+            .bubble-menu-items .pill-link:active {
+                transform: scale(.96);
+            }
+        }
+
+        /* -- Mobile Responsive -- */
+        @media (max-width: 600px) {
+            .hero {
+                padding: 60px 20px;
+            }
+
+            .avatar-ring {
+                width: 110px;
+                height: 110px;
+            }
+
+            .avatar-wrap {
+                margin-bottom: 1.2rem;
+            }
+
+            .hero-tag {
+                font-size: 0.85rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .social-row {
+                gap: 8px;
+                margin-bottom: 1.5rem;
+            }
+
+            .social-btn {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                font-size: 0.95rem;
+            }
+
+            .cta {
+                padding: 10px 20px;
+                font-size: 0.82rem;
+            }
+
+            .cta-row {
+                gap: 8px;
+            }
+
+            .hero-latest {
+                margin-top: 1.15rem;
+                font-size: 0.82rem;
+            }
+
+            #splash-text {
+                font-size: clamp(1rem, 4vw, 1.4rem);
+            }
+        }
+
+        @media (max-width: 380px) {
+            .hero {
+                padding: 40px 16px;
+            }
+
+            .avatar-ring {
+                width: 90px;
+                height: 90px;
+            }
+
+            .social-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 0.85rem;
+            }
+
+            .cta {
+                padding: 9px 16px;
+                font-size: 0.78rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="splash-active">
+
+    <!-- -- Splash Screen -- -->
+    <div id="splash">
+        <div id="splash-text"></div>
+        <div id="splash-tap">enter the site</div>
+    </div>
+
+    <!-- -- BubbleMenu -- -->
+    <nav class="bubble-menu" aria-label="Main navigation">
+        <button type="button" class="menu-btn" id="menu-toggle" aria-label="Toggle menu">
+            <span class="menu-line"></span><span class="menu-line"></span>
+        </button>
+    </nav>
+    <div class="bubble-menu-items" id="bubble-overlay" aria-hidden="true">
+        <ul class="pill-list" role="menu">
+            <li role="none" class="pill-col"><a role="menuitem" href="index.html" class="pill-link bubble-pill"
+                    style="--item-rot:-6deg;--glow-color:rgba(147,197,253,.15);--hover-bg:rgba(147,197,253,.12);--hover-color:#93c5fd"><span
+                        class="pill-label">home</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="about.html" class="pill-link bubble-pill"
+                    style="--item-rot:5deg;--glow-color:rgba(110,231,183,.15);--hover-bg:rgba(110,231,183,.12);--hover-color:#6ee7b7"><span
+                        class="pill-label">about</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="projects.html" class="pill-link bubble-pill"
+                    style="--item-rot:6deg;--glow-color:rgba(252,211,77,.15);--hover-bg:rgba(252,211,77,.12);--hover-color:#fcd34d"><span
+                        class="pill-label">projects</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="blog.html" class="pill-link bubble-pill"
+                    style="--item-rot:5deg;--glow-color:rgba(252,165,165,.15);--hover-bg:rgba(252,165,165,.12);--hover-color:#fca5a5"><span
+                        class="pill-label">blog</span></a></li>
+            <li role="none" class="pill-col"><a role="menuitem" href="gallery.html" class="pill-link bubble-pill"
+                    style="--item-rot:-5deg;--glow-color:rgba(196,181,253,.15);--hover-bg:rgba(196,181,253,.12);--hover-color:#c4b5fd"><span
+                        class="pill-label">gallery</span></a></li>
+        </ul>
+    </div>
+
+    <canvas id="background-canvas"></canvas>
+
+    <!-- -- Hero -- -->
+    <div class="page-wrap">
+        <section class="hero">
+            <div class="hero-inner" id="hero-inner">
+                <div class="avatar-wrap">
+                    <div class="avatar-ring">
+                        <img src="pfp.jpg" alt="Rohan Das">
+                    </div>
+                </div>
+                <h1 class="hero-name">Rohan Das</h1>
+                <p class="hero-tag">I write. I film. I build. Occasionally all three.</p>
+                <div class="social-row">
+                    <a href="https://www.instagram.com/rohandas_unscripted_" target="_blank" class="social-btn"
+                        aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://github.com/MillionDollarGuy" target="_blank" class="social-btn"
+                        aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/rohan-das-2869912a5/" target="_blank" class="social-btn"
+                        aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://wa.link/dh1lwh" target="_blank" class="social-btn" aria-label="WhatsApp"><i
+                            class="fab fa-whatsapp"></i></a>
+                </div>
+                <div class="cta-row">
+                    <a href="about.html" class="cta cta-primary">Read My Story <i class="fas fa-arrow-right"
+                            style="font-size:.8rem"></i></a>
+                    <a href="projects.html" class="cta cta-outline">See What I'm Building</a>
+                </div>
+                <a href="blog/our-first-big-decision.html" class="hero-latest">Latest Blog ---&gt;</a>
+            </div>
+        </section>
+    </div>
+
+    <script src="music.js"></script>
+
+    <script>
+        // -- Typing Splash --
+        const phrases = [
+            'welcome to my corner of the internet',
+            'stories, ideas, and things in progress',
+            'building quietly, learning loudly',
+            'come in, look around, stay a bit'
+        ];
+        const splashText = document.getElementById('splash-text');
+        const splash = document.getElementById('splash');
+        let pIdx = 0, charIdx = 0, isDeleting = false, paused = false, stopped = false;
+
+        function typeLoop() {
+            if (paused || stopped) return;
+            const full = phrases[pIdx];
+            if (isDeleting) {
+                charIdx--;
+            } else {
+                charIdx++;
+            }
+            splashText.textContent = full.substring(0, charIdx);
+
+            let speed = isDeleting ? 60 : 90;
+
+            if (!isDeleting && charIdx === full.length) {
+                paused = true;
+                setTimeout(() => { isDeleting = true; paused = false; typeLoop(); }, 1800);
+                return;
+            } else if (isDeleting && charIdx === 0) {
+                isDeleting = false;
+                pIdx = (pIdx + 1) % phrases.length;
+                speed = 200;
+            }
+            setTimeout(typeLoop, speed);
+        }
+        // Skip splash if already seen this session
+        if (sessionStorage.getItem('splash_seen')) {
+            splash.remove();
+            document.body.classList.remove('splash-active');
+        } else {
+            setTimeout(typeLoop, 400);
+        }
+
+        // Dismiss splash
+        splash.addEventListener('click', () => {
+            splash.classList.add('gone');
+            stopped = true;
+            splashText.textContent = '';
+            sessionStorage.setItem('splash_seen', '1');
+            document.body.classList.remove('splash-active');
+            if (typeof startBgMusic === 'function') startBgMusic();
+            // Remove from DOM after fade transition
+            setTimeout(() => splash.remove(), 700);
+            // Animate hero in
+            gsap.to('#hero-inner', { opacity: 1, duration: 0.8, delay: 0.3, ease: 'power2.out' });
+            gsap.from('.avatar-wrap', { scale: 0.8, opacity: 0, duration: 0.7, delay: 0.3, ease: 'back.out(1.4)' });
+            gsap.from('.hero-name', { y: 20, opacity: 0, duration: 0.6, delay: 0.5, ease: 'power3.out' });
+            gsap.from('.hero-tag', { y: 16, opacity: 0, duration: 0.6, delay: 0.6, ease: 'power3.out' });
+            gsap.from('.social-row', { y: 16, opacity: 0, duration: 0.6, delay: 0.7, ease: 'power3.out' });
+            gsap.from('.cta-row', { y: 16, opacity: 0, duration: 0.6, delay: 0.8, ease: 'power3.out' });
+        });
+
+        // -- Starfield --
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('background-canvas'), alpha: true });
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.setClearAlpha(0);
+        const N = 2000, pos = new Float32Array(N * 3), vel = new Float32Array(N * 3);
+        for (let i = 0; i < N * 3; i += 3) {
+            pos[i] = (Math.random() - 0.5) * 2000;
+            pos[i + 1] = (Math.random() + 0.5) * 2000;
+            pos[i + 2] = (Math.random() - 0.5) * 2000;
+            vel[i] = (Math.random() - 0.5) * 2;
+            vel[i + 1] = Math.random() * 5 + 2;
+            vel[i + 2] = (Math.random() - 0.5) * 2;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        const stars = new THREE.Points(geo, new THREE.PointsMaterial({
+            color: 0xffffff, size: 0.5,
+            blending: THREE.AdditiveBlending,
+            transparent: true, opacity: 0.65
+        }));
+        scene.add(stars);
+        camera.position.z = 1000;
+        (function animate() {
+            requestAnimationFrame(animate);
+            const p = stars.geometry.attributes.position.array;
+            for (let i = 0; i < p.length; i += 3) {
+                p[i] += vel[i]; p[i + 1] -= vel[i + 1]; p[i + 2] += vel[i + 2];
+                if (p[i + 1] < -1000) { p[i + 1] = 1000; p[i] = (Math.random() - 0.5) * 2000; p[i + 2] = (Math.random() - 0.5) * 2000; }
+            }
+            stars.geometry.attributes.position.needsUpdate = true;
+            renderer.render(scene, camera);
+        })();
+        addEventListener('resize', () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+        });
+
+        // -- BubbleMenu --
+        (function () {
+            const mt = document.getElementById('menu-toggle'), bo = document.getElementById('bubble-overlay');
+            const ps = Array.from(document.querySelectorAll('.bubble-pill')), ls = Array.from(document.querySelectorAll('.bubble-pill .pill-label'));
+            const mi = [{ r: -6 }, { r: 5 }, { r: 6 }, { r: 5 }, { r: -5 }];
+            let o = false;
+            function open() {
+                o = true; mt.classList.add('open');
+                gsap.set(bo, { display: 'flex', opacity: 0 });
+                gsap.to(bo, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+                gsap.killTweensOf([...ps, ...ls]);
+                gsap.set(ps, { scale: 0, transformOrigin: '50% 50%' });
+                gsap.set(ls, { y: 20, autoAlpha: 0 });
+                ps.forEach((p, i) => {
+                    const d = i * 0.12 + (Math.random() * 0.1 - 0.05), tl = gsap.timeline({ delay: d });
+                    tl.to(p, { scale: 1, duration: 0.5, ease: 'back.out(1.5)' });
+                    if (ls[i]) tl.to(ls[i], { y: 0, autoAlpha: 1, duration: 0.5, ease: 'power3.out' }, '-=0.45');
+                });
+                ar();
+            }
+            function close() {
+                if (!o) return; o = false; mt.classList.remove('open');
+                gsap.killTweensOf([...ps, ...ls, bo]);
+                gsap.to(ls, { y: 20, autoAlpha: 0, duration: 0.2, ease: 'power3.in' });
+                gsap.to(ps, { scale: 0, duration: 0.2, ease: 'power3.in' });
+                gsap.to(bo, { opacity: 0, duration: 0.3, delay: 0.1, ease: 'power2.in', onComplete() { gsap.set(bo, { display: 'none' }); } });
+            }
+            mt.addEventListener('click', () => o ? close() : open());
+            ps.forEach(p => p.addEventListener('click', close));
+            document.addEventListener('mousedown', e => { if (!o) return; if (!bo.contains(e.target) && !e.target.closest('.bubble-menu')) close(); });
+            function ar() {
+                if (!o) return; const d = innerWidth >= 900; ps.forEach((p, i) => gsap.set(p, { rotation: d ? mi[i].r : 0 }));
+            }
+            addEventListener('resize', ar);
+        })();
+    </script>
+
+    <script src="router.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,265 @@
+/* Masonry Gallery — Premium Vertical Layout */
+
+/* ── Container ── */
+.gallery-sections {
+    column-count: 4;
+    column-gap: 14px;
+    padding-bottom: 40px;
+}
+
+@media (max-width: 1100px) {
+    .gallery-sections { column-count: 3; }
+}
+@media (max-width: 700px) {
+    .gallery-sections { column-count: 2; column-gap: 10px; }
+}
+@media (max-width: 400px) {
+    .gallery-sections { column-count: 1; }
+}
+
+/* ── Card ── */
+.g-card {
+    break-inside: avoid;
+    margin-bottom: 14px;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: border-color 0.4s ease, box-shadow 0.5s ease, transform 0.4s ease;
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+}
+
+@media (max-width: 700px) {
+    .g-card { margin-bottom: 10px; border-radius: 12px; }
+}
+
+.g-card:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:
+        0 14px 50px rgba(0, 0, 0, 0.4),
+        0 0 35px rgba(139, 92, 246, 0.08),
+        0 0 70px rgba(59, 130, 246, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ── Image ── */
+.g-card-img {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.g-card-img.loading {
+    min-height: 200px;
+    background: linear-gradient(110deg,
+            rgba(255, 255, 255, 0.03) 30%,
+            rgba(255, 255, 255, 0.08) 50%,
+            rgba(255, 255, 255, 0.03) 70%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.g-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.g-card-img:not(.loading) .g-img {
+    opacity: 1;
+}
+
+.g-card:hover .g-img {
+    transform: scale(1.05);
+}
+
+/* ── Bottom gradient on hover ── */
+.g-card-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            transparent 55%,
+            rgba(0, 0, 0, 0.4) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.g-card:hover .g-card-img::after {
+    opacity: 1;
+}
+
+/* ── Expand icon ── */
+.g-card-expand {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.g-card-expand svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.g-card:hover .g-card-expand {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* ══════════════════════════════════════════
+   LIGHTBOX
+   ══════════════════════════════════════════ */
+
+.gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    opacity: 0;
+    cursor: zoom-out;
+}
+
+.gallery-lightbox.active {
+    display: flex;
+}
+
+.gallery-lightbox-img {
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.gallery-lb-close {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.2s;
+    z-index: 10;
+}
+
+.gallery-lb-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transform: scale(1.08);
+}
+
+.gallery-lb-close:active { transform: scale(0.92); }
+
+.gallery-lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.25s;
+    z-index: 10;
+}
+
+.gallery-lb-nav:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.gallery-lb-nav:active { transform: translateY(-50%) scale(0.88); }
+.gallery-lb-prev { left: 24px; }
+.gallery-lb-next { right: 24px; }
+
+.gallery-lb-counter {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.35);
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    user-select: none;
+}
+
+/* ── Mobile lightbox ── */
+@media (max-width: 600px) {
+    .gallery-lb-prev { left: 12px; }
+    .gallery-lb-next { right: 12px; }
+    .gallery-lb-nav { width: 40px; height: 40px; font-size: 0.9rem; }
+    .gallery-lb-close { top: 16px; right: 16px; width: 38px; height: 38px; }
+    .gallery-lightbox-img { max-width: 95vw; max-height: 80vh; border-radius: 8px; }
+}
