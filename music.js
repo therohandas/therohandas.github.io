@@ -1,7 +1,10 @@
 // -- Background Music --
-// Simple text line with play/pause button at bottom-left.
+// Minimal floating player with title, artist, and controls.
 (function () {
     'use strict';
+    if (window.__bgMusicPlayerInit) return;
+    window.__bgMusicPlayerInit = true;
+
     var KEY_PLAYING = 'bgm_playing';
     var KEY_TRACK = 'bgm_track';
     var KEY_TIME = 'bgm_time';
@@ -57,8 +60,7 @@
             '<svg class="mp-ic-pause" viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><rect x="5" y="4" width="4.5" height="16" rx="1"/><rect x="14.5" y="4" width="4.5" height="16" rx="1"/></svg>' +
             '</button>' +
             '<button class="mp-pp" id="mp-nxt" title="Next"><svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"><polygon points="5,4 15,12 5,20"/><rect x="16" y="5" width="3" height="14" rx=".5"/></svg></button>' +
-            '</div>' +
-            '<div class="mp-progress"><div class="mp-progress-fill" id="mp-pfill"></div></div>';
+            '</div>';
         document.body.appendChild(el);
 
         var css = document.createElement('style');
@@ -85,14 +87,29 @@
             '.mp-ic-play,.mp-ic-pause{display:none;line-height:0}' +
             '#mp.playing .mp-ic-pause{display:flex}' +
             '#mp:not(.playing) .mp-ic-play{display:flex}' +
-            '.mp-progress{width:100%;height:1.5px;border-radius:1px;background:rgba(255,255,255,.06);overflow:hidden}' +
-            '.mp-progress-fill{height:100%;width:0%;border-radius:1px;background:linear-gradient(90deg,#e8863a,rgba(232,134,58,.15));transition:width .3s linear}' +
-            '@media(max-width:500px){#mp{left:10px;bottom:10px}}';
+            '@media(max-width:500px){' +
+            '#mp{left:50%;bottom:12px;transform:translateX(-50%);width:min(92vw,360px);gap:8px;padding:10px 12px;border-radius:18px;background:rgba(10,10,20,.72);border:1px solid rgba(255,255,255,.08);box-shadow:0 12px 30px rgba(0,0,0,.28);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}' +
+            '.mp-row{display:grid;grid-template-columns:auto 1fr auto auto;grid-template-areas:"eq song pp nxt" "eq artist pp nxt";align-items:center;column-gap:8px;row-gap:3px;overflow:visible}' +
+            '.mp-eq{grid-area:eq;height:16px;align-self:center}' +
+            '.mp-song{grid-area:song;font-size:.74rem;color:rgba(255,255,255,.72)}' +
+            '.mp-sep{display:none}' +
+            '.mp-artist{grid-area:artist;display:block;font-size:.62rem;color:rgba(255,255,255,.42)}' +
+            '#mp-pp{grid-area:pp}' +
+            '#mp-nxt{grid-area:nxt}' +
+            '.mp-pp{width:32px;height:32px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.78)}' +
+            '}' +
+            '@media(max-width:380px){' +
+            '#mp{width:min(94vw,340px);padding:9px 10px}' +
+            '.mp-song{font-size:.7rem}' +
+            '.mp-artist{font-size:.6rem}' +
+            '.mp-pp{width:30px;height:30px}' +
+            '}';
         document.head.appendChild(css);
 
-        var songEl = document.getElementById('mp-song');
-        var artistEl = document.getElementById('mp-artist');
-        var ppBtn = document.getElementById('mp-pp');
+        var songEl = el.querySelector('#mp-song');
+        var artistEl = el.querySelector('#mp-artist');
+        var ppBtn = el.querySelector('#mp-pp');
+        var waitingForGesture = false;
 
         function ui() { el.classList.toggle('playing', !audio.paused); }
         function setUI() {
@@ -100,27 +117,39 @@
             songEl.textContent = nameFromFile(t.file);
             artistEl.textContent = t.artist || '';
         }
+        function tryPlay() {
+            return audio.play().then(function () {
+                waitingForGesture = false;
+                localStorage.setItem(KEY_PLAYING, '1');
+            }).catch(function () {
+                waitingForGesture = true;
+            });
+        }
+        function unlockPlayback() {
+            if (!waitingForGesture) return;
+            tryPlay();
+        }
 
         function loadTrack(i, autoplay) {
             if (i >= playlist.length) i = 0;
             if (i < 0) i = playlist.length - 1;
             idx = i;
             audio.src = musicDir + playlist[idx].file;
+            audio.load();
             localStorage.setItem(KEY_TRACK, String(idx));
             setUI();
-            if (autoplay) audio.play().catch(function () { });
+            if (autoplay) tryPlay();
         }
 
         ppBtn.addEventListener('click', function (e) {
             e.stopPropagation();
-            if (audio.paused) { audio.play().catch(function () { }); localStorage.setItem(KEY_PLAYING, '1'); }
+            if (audio.paused) { tryPlay(); }
             else { audio.pause(); localStorage.setItem(KEY_PLAYING, '0'); }
         });
-        document.getElementById('mp-nxt').addEventListener('click', function (e) {
+        el.querySelector('#mp-nxt').addEventListener('click', function (e) {
             e.stopPropagation();
             loadTrack(idx + 1, true);
         });
-
         audio.addEventListener('play', ui);
         audio.addEventListener('pause', ui);
         audio.addEventListener('ended', function () { loadTrack(idx + 1, true); });
@@ -130,7 +159,7 @@
 
         if (wasPlaying) {
             var saved = parseFloat(localStorage.getItem(KEY_TIME) || '0');
-            var go = function () { audio.currentTime = saved; audio.play().catch(function () { }); };
+            var go = function () { audio.currentTime = saved; tryPlay(); };
             if (audio.readyState >= 2) go();
             else audio.addEventListener('canplay', function f() { audio.removeEventListener('canplay', f); go(); });
         }
@@ -138,10 +167,11 @@
             localStorage.setItem(KEY_PLAYING, audio.paused ? '0' : '1');
             localStorage.setItem(KEY_TIME, String(audio.currentTime));
         });
+        document.addEventListener('pointerdown', unlockPlayback, true);
+        document.addEventListener('touchstart', unlockPlayback, true);
 
         window.startBgMusic = function () {
-            localStorage.setItem(KEY_PLAYING, '1');
-            audio.play().catch(function () { });
+            tryPlay();
         };
         if (_pending) { _pending = false; window.startBgMusic(); }
     }
